@@ -21,22 +21,22 @@ if check_file:
     lastdatetimetrade = ''
     while i < 999:
         time.sleep(10)
-
-        lastdatetimetrade = cycleupdatelogmarket(lastdatetimetrade, params,logdatanamemarket,logdatanametech)
+        pass
+        # lastdatetimetrade = cycleupdatelogmarket(lastdatetimetrade, params,logdatanamemarket,logdatanametech)
     print('SCRIPT DONE')
 else:
-    marketlog = open(logdatanamemarket, 'w')
-    marketlog.close()
+    # marketlog = open(logdatanamemarket, 'w')
+    # marketlog.close()
 
     response = requests.get('https://poloniex.com/public', params=params)
     if (response.status_code):
-        lastdatetimetrade = firststartreturnhistoryTrade(response,logdatanamemarket,logdatanametech)
+        lastdatetimetrade = firststartreturnhistoryTrade_sql(response,logdatanametech)
 
         # дополнение лога в бесконечном цикле.
         i = 0
         while i < 999:
             time.sleep(2)
-            lastdatetimetrade = cycleupdatelogmarket(lastdatetimetrade, params,logdatanamemarket,logdatanametech)
+            lastdatetimetrade = cycleupdatelogmarket_sql(lastdatetimetrade, params,logdatanametech)
 
         print('SCRIPT DONE')
     else:

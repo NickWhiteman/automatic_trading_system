@@ -1,55 +1,38 @@
-import requests
+import psycopg2
 import datetime
-from DataFormatCorrection.UpdateData import *
 import time
-import os.path
+from psycopg2 import Error
+from DataFormatCorrection.UpdateData import *
 
-# params = (
-#     ('command', 'returnTradeHistory'),
-#     ('currencyPair', 'BTC_ETH'),
-# )
-# #Время торгов идет по Азорским остравам.
-# response = requests.get('https://poloniex.com/public', params=params)
-# hh = response.json()
-#
-#
-# print(hh[2]['date'])
-# h1 = hh[2]['date']
-#
-# h2 = datetime.datetime.strptime(h1,"%Y-%m-%d %H:%M:%S")
-# h2 = h2 + datetime.timedelta(hours=3)
-# print(h2)
-#
-# print(updateloghourse(hh[2]['date']))
 
-# g1 = datetime.datetime.date(datetime.datetime.now())
-# g1 = g1 + datetime.timedelta(hours=48)
-# print(datetime.datetime.now())
-# print(g1)
-# # g2 = datetime.datetime.strptime(g1,"%Y_%m_%d")
-# t = datetime.datetime.date(datetime.datetime.now())
-# t2 = t + datetime.timedelta(hours=-48)
-# t2 = t2.strftime('%d_%m_%Y')
-# t = t.strftime('%d_%m_%Y')
-#
-# print(t)
-# print(t2)
 
-print(realdatatame())
+try:
+    # Подключение к существующей базе данных
+    connection = psycopg2.connect(user="postgres",
+                                  # пароль, который указали при установке PostgreSQL
+                                  password="111111",
+                                  host="127.0.0.1",
+                                  port="5432",
+                                  database="postgres")
+    result = [561906993, 52262538, '2021-06-07 21:52:09', 'buy', '0.07642600', '0.01929000', '0.00147425']
+    cursor = connection.cursor()
+    # Выполнение SQL-запроса для вставки данных в таблицу
+    insert_query = f""" INSERT INTO postgreetest_db (globalTradeID, tradeID, date, type, rate, amount, total) VALUES
+    (%s,%s,%s,%s,%s,%s,%s)"""
 
-check_file = os.path.exists(f'TradeHistory{realdatatame()}.txt')
-if check_file:
-    print('file here!')
-else:
-    print('NOT FILE')
-    techlog = open(f'TradeHistory{realdatatame()}.txt', 'w')
+    cursor.execute(insert_query,result) #тут узкое место, подстановка %s работает от сюда.
+    connection.commit()
+    print("запись успешно вставлена")
+    # Получить результат
+    cursor.execute("SELECT * from postgreetest_db")
+    record = cursor.fetchall()
+    print("Результат", record)
 
-    techlog.close()
-
-print(f'TradeHistory{realdatatame()}.txt')
-print(check_file)
-
-logdataname = f'TradeHistory{realdatatame()}.txt'
-print(logdataname)
-
+except (Exception, Error) as error:
+    print("Ошибка при работе с PostgreSQL", error)
+finally:
+    if connection:
+        cursor.close()
+        connection.close()
+        print("Соединение с PostgreSQL закрыто")
 
