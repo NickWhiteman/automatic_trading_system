@@ -30,7 +30,7 @@ else:
 
     response = requests.get('https://poloniex.com/public', params=params)
     if (response.status_code):
-        lastdatetimetrade = firststartreturnhistoryTrade(response,logdatanamemarket,logdatanametech)
+        lastdatetimetrade = firststartreturnhistoryTrade_sql(response,logdatanametech)
 
         # дополнение лога в бесконечном цикле.
         i = 0
