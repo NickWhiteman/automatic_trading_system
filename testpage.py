@@ -14,14 +14,15 @@ try:
                                   host="127.0.0.1",
                                   port="5432",
                                   database="postgres")
-
+    result = [561906993, 52262538, '2021-06-07 21:52:09', 'buy', '0.07642600', '0.01929000', '0.00147425']
     cursor = connection.cursor()
     # Выполнение SQL-запроса для вставки данных в таблицу
-    insert_query = f""" INSERT INTO postgreetest_db (date, globalTradeID, type, rate) VALUES ({result})"""
+    insert_query = f""" INSERT INTO postgreetest_db (globalTradeID, tradeID, date, type, rate, amount, total) VALUES
+    (%s,%s,%s,%s,%s,%s,%s)"""
 
-    cursor.execute(insert_query)
+    cursor.execute(insert_query,result) #тут узкое место, подстановка %s работает от сюда.
     connection.commit()
-    print("1 запись успешно вставлена")
+    print("запись успешно вставлена")
     # Получить результат
     cursor.execute("SELECT * from postgreetest_db")
     record = cursor.fetchall()
@@ -34,3 +35,4 @@ finally:
         cursor.close()
         connection.close()
         print("Соединение с PostgreSQL закрыто")
+
