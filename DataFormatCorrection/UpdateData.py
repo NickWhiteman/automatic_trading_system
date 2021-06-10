@@ -126,3 +126,36 @@ def sqlADDinfoTable(addinfo):
             cursor.close()
             connection.close()
 
+
+def chectablefromDB():
+    try:
+        # Подключение к существующей базе данных
+        connection = psycopg2.connect(user="postgres",
+                                      # пароль, который указали при установке PostgreSQL
+                                      password="111111",
+                                      host="127.0.0.1",
+                                      port="5432",
+                                      database="postgres")
+        cursor = connection.cursor()
+        # Выполнение SQL-запроса для вставки данных в таблицу
+        insert_query = """SELECT table_name FROM information_schema.tables
+    WHERE table_schema NOT IN ('information_schema', 'postgres')
+    AND table_schema IN('public', 'myschema')"""
+
+        # Получить результат
+        cursor.execute(insert_query)
+        record = cursor.fetchall()
+        print("Результат", record)
+        return record
+
+    except (Exception, Error) as error:
+        print("Ошибка при работе с PostgreSQL", error)
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+            print("Соединение с PostgreSQL закрыто")
+
+
+def create_table_sql():
+    pass

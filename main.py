@@ -4,13 +4,14 @@ import os.path
 from DataFormatCorrection.UpdateData import *
 
 #header
+cryptomoney = 'BTC_ETH'
 params = (
     ('command', 'returnTradeHistory'),
-    ('currencyPair', 'BTC_ETH'),
+    ('currencyPair', cryptomoney),
 )
 ############
 
-check_file = os.path.exists(f'TradeHistory{realdatatame()}.txt')
+check_file = f'TradeHistory_{cryptomoney}_{realdatatame()}'
 logdatanamemarket = f'TradeHistory{realdatatame()}.txt'
 logdatanametech = f'techlog{realdatatame()}.txt'
 
@@ -49,6 +50,7 @@ else:
         techlog = open(logdatanametech, 'w')
         techlog.write(outserverlocallog)
         techlog.close()
+
 
 
 
