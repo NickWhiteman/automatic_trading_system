@@ -62,48 +62,36 @@ from DataFormatCorrection.UpdateData import *
 #         print("Соединение с PostgreSQL закрыто")
 
 
-def jjj():
-    hhhh = chectablefromDB()
-    for k in hhhh:
-        print(k[0])
-        print(f'TradeHistory{realdatatame()}')
+#header
+cryptomoney = 'BTC_ETH'
+params = (
+    ('command', 'returnTradeHistory'),
+    ('currencyPair', cryptomoney),
+)
+############
+
+name_table = f'tradehistory_{cryptomoney}_{realdatatame()}'
+name_table = name_table.lower()
+logdatanamemarket = f'tradehstory{realdatatame()}.txt'
+logdatanametech = f'techlog{realdatatame()}.txt'
 
 
-def ll1(timedataname):
-    try:
-        # Подключение к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      # пароль, который указали при установке PostgreSQL
-                                      password="111111",
-                                      host="127.0.0.1",
-                                      port="5432",
-                                      database="postgres")
+check_table_db = chectablefromDB(name_table)
+print(check_table_db)
+if check_table_db:
+    print('file here!')
+    # дополнение лога в бесконечном цикле.
+    i = 0
+    lastdatetimetrade = updateloghourse(check_last_date_edit_table(name_table))
 
-        cursor = connection.cursor()
-        # Выполнение SQL-запроса для вставки данных в таблицу
-        insert_query = f"""CREATE TABLE {timedataname} (
-    globaltradeid         int8,
-    tradeid        int8,
-    date 			varchar,
-    type		varchar,
-    rate 		float4,
-    amount		float4,
-    total		float4
-)"""
+    print(lastdatetimetrade)
+    print(type(lastdatetimetrade))
+    while True:
+        time.sleep(2)
+        lastdatetimetrade = cycleupdatelogmarket_sql(lastdatetimetrade, params,logdatanametech,name_table)
+    print('SCRIPT DONE')
 
-        cursor.execute(insert_query)  #Создание таблицы
-        connection.commit()
-        print("Таблица успешно вставлена")
+else:
+    print('hueta')
 
 
-    except (Exception, Error) as error:
-        print("Ошибка при работе с PostgreSQL", error)
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
-            print("Соединение с PostgreSQL закрыто")
-
-
-timedataname = f'TradeHistory{realdatatame()}'
-ll1(timedataname)
