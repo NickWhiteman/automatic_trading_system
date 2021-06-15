@@ -26,7 +26,7 @@ def realdatatame():
 
 
 ####
-def firststartreturnhistoryTrade_sql(response, logdatanametech, table_name):
+def firststartreturnhistoryTrade_sql(response, logdatanametech, name_table):
     # Время торгов идет по Азорским остравам.
     requestJSON = ''.join(map(str, response.json()))  # пребразование list в str для нормального чтения в лог.
     outserverlocallog = "GET \nServer status OK\nJSON: " + requestJSON + '\n' + '_' * 60
@@ -44,13 +44,14 @@ def firststartreturnhistoryTrade_sql(response, logdatanametech, table_name):
     for i in range(len(workrequest)):
         sql_json.append(workrequest[i]['globalTradeID'])
         sql_json.append(workrequest[i]['tradeID'])
-        sql_json.append(workrequest[i]['date'])
+        upgradata_str = workrequest[i]['date']
+        sql_json.append(updateloghourse(upgradata_str))
         sql_json.append(workrequest[i]['type'])
         sql_json.append(workrequest[i]['rate'])
         sql_json.append(workrequest[i]['amount'])
         sql_json.append(workrequest[i]['total'])
 
-        sqlADDinfoTable(sql_json,table_name)
+        sqlADDinfoTable(sql_json,name_table)
         sql_json.clear()
 
         if (i == 199):
@@ -74,31 +75,107 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
 
         workrequest = response.json()
         workrequest.reverse()
+
+        ## удалить потом
+        print('Дата зашедная в переменную')
+        print(lastdatetimetrade)
+        ##
+
+        # lastdatetimetrade = update_str_for_datatime('2021-06-14 10:00:11')
         if (updateloghourse(workrequest[-1]['date']) == lastdatetimetrade):
             # Если время совпало с последней записью 200 сделок то - возвращаем последнюю дату сделки без изменения
             print('Время совпало')
             return lastdatetimetrade
+
+            # Если проблемы нет наполняем таблицу как и ранее.
         else:
-            # Если время последней сделки НЕ совпало - заносим инфу в БД и переменную lastdatetimetrade
-
             print('время не совпало')
-            sql_json = []
-            sql_json.append(workrequest[-1]['globalTradeID'])
-            sql_json.append(workrequest[-1]['tradeID'])
-            sql_json.append(workrequest[-1]['date'])
-            sql_json.append(workrequest[-1]['type'])
-            sql_json.append(workrequest[-1]['rate'])
-            sql_json.append(workrequest[-1]['amount'])
-            sql_json.append(workrequest[-1]['total'])
+            ########## new logic
+            # Если время последней сделки НЕ совпало - заносим инфу в БД и переменную lastdatetimetrade
+            # Проверяем перед обновлением, не перешли ли торги на новый день после 00:00 часов.
+            print('Метка 0.1')
+            a_data = updateloghourse(workrequest[-1]['date'])
+            b_data = lastdatetimetrade
+            print(type(a_data))
+            print(type(b_data))
+            print(f'{a_data} - {b_data}')
+            print('Метка 0.1')
+            #Преобразование полной даты в формат день\месяц\год для корректного получение разницы в кол-ве дней.
+            a_data = datetime.date(a_data.year, a_data.month, a_data.day)
+            b_data = datetime.date(b_data.year, b_data.month, b_data.day)
+            #Операция вычисления отставания.
+            ttl_lastdatetimetrade = a_data - b_data
+            print('Метка 0.2')
+            print(ttl_lastdatetimetrade)
+            ttl_lastdatetimetrade = str(ttl_lastdatetimetrade)
+            ttl_lastdatetimetrade = ttl_lastdatetimetrade.split()[0]
+            print('+-+')
+            print(ttl_lastdatetimetrade)
+            print('Метка 1')
 
-            sqlADDinfoTable(sql_json, name_table)
-            sql_json.clear()
+            if ttl_lastdatetimetrade == '1':
+                print('Начался новый торговый день!')
+                # создаем таблицу новую.
+                print('СОЗДАЛ ТАБЛИЦУ ++++')
 
-            # обновление последней даты сделки в переменной lastdatetimetrade для следующего цикла
-            lastdatetimetrade = updateloghourse(workrequest[-1]['date'])
-            print("Запись успешно обновлена")
-            return lastdatetimetrade
+                create_table_sql(name_table)
+                firststartreturnhistoryTrade_sql(response, logdatanametech, name_table)
+                print('Метка 3')
+                # запрос к БД на удаление записей ранее нового дня до 00:00ч.
+                try:
+                    # Подключение к существующей базе данных
+                    connection = psycopg2.connect(user="postgres",
+                                                  # пароль, который указали при установке PostgreSQL
+                                                  password="111111",
+                                                  host="127.0.0.1",
+                                                  port="5432",
+                                                  database="postgres")
+                    cursor = connection.cursor()
+                    # Выполнение SQL-запроса для вставки данных в таблицу
+                    insert_query = f"""DELETE FROM {name_table} WHERE date < '{b_data}'"""
 
+                    # Провести удаление.
+                    cursor.execute(insert_query)
+                    connection.commit()
+                    print("Таблица подготовлена")
+                    lastdatetimetrade = check_last_date_edit_table(name_table)
+                    print('Метка 4')
+
+
+                except (Exception, Error) as error:
+                    print("Ошибка при работе с PostgreSQL", error)
+                finally:
+                    if connection:
+                        cursor.close()
+                        connection.close()
+
+                # Вывод последней записи в таблице на новый цикл.
+                lastdatetimetrade = check_last_date_edit_table(name_table)
+                return lastdatetimetrade
+            else:
+                ############################ end test logical
+                sql_json = []
+                sql_json.append(workrequest[-1]['globalTradeID'])
+                sql_json.append(workrequest[-1]['tradeID'])
+                upgradata_str = workrequest[-1]['date']
+                sql_json.append(updateloghourse(upgradata_str))
+                sql_json.append(workrequest[-1]['type'])
+                sql_json.append(workrequest[-1]['rate'])
+                sql_json.append(workrequest[-1]['amount'])
+                sql_json.append(workrequest[-1]['total'])
+
+                sqlADDinfoTable(sql_json, name_table)
+                sql_json.clear()
+
+                # обновление последней даты сделки в переменной lastdatetimetrade для следующего цикла
+                lastdatetimetrade = updateloghourse(workrequest[-1]['date'])
+                print("Запись успешно обновлена")
+                print(lastdatetimetrade)
+                return lastdatetimetrade
+
+# Запись
+def cycleupdatelogmarket_sql_plus():
+    pass
 
 # Запись в подготовленную таблицу sql
 def sqlADDinfoTable(addinfo, name_table):
@@ -213,13 +290,12 @@ def check_last_date_edit_table(name_table):
 
         cursor = connection.cursor()
         # Выполнение SQL-запроса для вставки данных в таблицу
+        # Запрос на самую последнюю запись по времени в колонке date.
         insert_query = f"""SELECT date FROM {name_table} WHERE date=(SELECT max(date) FROM {name_table});"""
 
-        cursor.execute(insert_query)  # Создание таблицы
+        cursor.execute(insert_query)
         record = cursor.fetchone()
         return record[0]
-
-
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
