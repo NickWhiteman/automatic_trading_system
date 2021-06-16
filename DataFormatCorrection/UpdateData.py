@@ -61,7 +61,7 @@ def firststartreturnhistoryTrade_sql(response, logdatanametech, name_table):
 
     return lastdatetimetrade
 
-
+# Динамическое наполнение таблицы.
 def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_table):
     response = requests.get('https://poloniex.com/public', params=params)
     if (response.status_code):
@@ -172,10 +172,6 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
                 print("Запись успешно обновлена")
                 print(lastdatetimetrade)
                 return lastdatetimetrade
-
-# Запись
-def cycleupdatelogmarket_sql_plus():
-    pass
 
 # Запись в подготовленную таблицу sql
 def sqlADDinfoTable(addinfo, name_table):
