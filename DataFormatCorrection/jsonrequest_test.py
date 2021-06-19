@@ -3,7 +3,6 @@ import datetime
 import time
 from psycopg2 import Error
 
-name_table = 'tradehistory_btc_eth_16_06_2021'
 
 def test_sql_json(name_table):
     try:

@@ -3,8 +3,8 @@ import time
 import os.path
 from DataFormatCorrection.UpdateData import *
 
-cryptomoney = 'BTC_ETH'
-name_table = f'tradehistory_{cryptomoney}_{realdatatame()}'
+# cryptomoney = 'BTC_ETH'
+# name_table = f'tradehistory_{cryptomoney}_{realdatatame()}'
 
 def returnTradeHistory():
 
@@ -18,9 +18,8 @@ def returnTradeHistory():
         ############
 
         name_table = f'tradehistory_{cryptomoney}_{realdatatame()}'
-        # name_table = 'tradehistory_btc_eth_14_06_2021'
         name_table = name_table.lower()
-        logdatanamemarket = f'tradehstory{realdatatame()}.txt'
+        # logdatanamemarket = f'tradehstory{realdatatame()}.txt'
         logdatanametech = f'techlog{realdatatame()}.txt'
 
         #Проверка существования таблицы за текущую дату.
@@ -36,7 +35,6 @@ def returnTradeHistory():
             while True:
                 # Блок обновления дат
                 name_table = f'tradehistory_{cryptomoney}_{realdatatame()}'
-                # name_table = 'tradehistory_btc_eth_16_06_2021'
                 name_table = name_table.lower()
                 logdatanametech = f'techlog{realdatatame()}.txt'
                 print('Последняя дата')
@@ -56,7 +54,6 @@ def returnTradeHistory():
                 lastdatetimetrade = firststartreturnhistoryTrade_sql(response,logdatanametech, name_table)
 
                 # дополнение лога в бесконечном цикле.
-                i = 0
                 while True:
                     time.sleep(2)
                     lastdatetimetrade = cycleupdatelogmarket_sql(lastdatetimetrade, params,logdatanametech,name_table)
@@ -72,33 +69,6 @@ def returnTradeHistory():
                 techlog = open(logdatanametech, 'w')
                 techlog.write(outserverlocallog)
                 techlog.close()
-
-
-def test_sql_json():
-    try:
-        # Подключение к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      # пароль, который указали при установке PostgreSQL
-                                      password="111111",
-                                      host="127.0.0.1",
-                                      port="5432",
-                                      database="postgres")
-
-        cursor = connection.cursor()
-        # Выполнение SQL-запроса для вставки данных в таблицу
-        insert_query = f"""SELECT * FROM {name_table}"""
-
-        cursor.execute(insert_query)
-        f = cursor.fetchall()
-        return f
-
-    except (Exception, Error) as error:
-        print("Ошибка при работе с PostgreSQL", error)
-
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
 
 
 
