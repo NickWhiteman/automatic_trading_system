@@ -122,7 +122,7 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
                 print('Начался новый торговый день!')
                 # создаем таблицу новую.
                 print('СОЗДАЛ ТАБЛИЦУ ++++')
-
+                print('Метка 1-1-1')
                 create_table_sql(name_table)
                 firststartreturnhistoryTrade_sql(response, logdatanametech, name_table)
                 print('Метка 3')
