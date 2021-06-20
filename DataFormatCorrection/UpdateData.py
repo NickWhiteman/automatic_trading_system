@@ -81,7 +81,6 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
         print(lastdatetimetrade)
         ##
 
-        # lastdatetimetrade = update_str_for_datatime('2021-06-14 10:00:11')
         if (updateloghourse(workrequest[-1]['date']) == lastdatetimetrade):
             # Если время совпало с последней записью 200 сделок то - возвращаем последнюю дату сделки без изменения
             print('Время совпало')
@@ -100,6 +99,12 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
             print(type(b_data))
             print(f'{a_data} - {b_data}')
             print('Метка 0.1')
+            if type(b_data) == type(a_data):
+                print('Типы совпали')
+            else:
+                b_data = update_str_for_datatime(b_data)
+                print("типы не совпали")
+
             #Преобразование полной даты в формат день\месяц\год для корректного получение разницы в кол-ве дней.
             a_data = datetime.date(a_data.year, a_data.month, a_data.day)
             b_data = datetime.date(b_data.year, b_data.month, b_data.day)
@@ -117,7 +122,7 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
                 print('Начался новый торговый день!')
                 # создаем таблицу новую.
                 print('СОЗДАЛ ТАБЛИЦУ ++++')
-
+                print('Метка 1-1-1')
                 create_table_sql(name_table)
                 firststartreturnhistoryTrade_sql(response, logdatanametech, name_table)
                 print('Метка 3')
@@ -138,8 +143,9 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
                     cursor.execute(insert_query)
                     connection.commit()
                     print("Таблица подготовлена")
-                    lastdatetimetrade = check_last_date_edit_table(name_table)
+                    # lastdatetimetrade = check_last_date_edit_table(name_table)
                     print('Метка 4')
+                    # return lastdatetimetrade
 
 
                 except (Exception, Error) as error:
@@ -151,6 +157,8 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
 
                 # Вывод последней записи в таблице на новый цикл.
                 lastdatetimetrade = check_last_date_edit_table(name_table)
+                # Преобразование полученной последней записи из колонки date в datatime формат. В колонке он str.
+                lastdatetimetrade = update_str_for_datatime(lastdatetimetrade)
                 return lastdatetimetrade
             else:
                 ############################ end test logical
