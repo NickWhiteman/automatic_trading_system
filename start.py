@@ -48,7 +48,19 @@ def returnTradeHistory():
             lastdatetimetrade = firststartreturnhistoryTrade_sql(response,logdatanametech, name_table)
             print('Метка 5-2')
             # дополнение лога в бесконечном цикле.
+
+            # Вывод последней записи в таблице на новый цикл.
+            firs_edit_data = update_str_for_datatime(check_last_date_edit_table(name_table))
+            # Преобразование даты в сокращенный вид. Пример: 2021-06-24
+            f_data = datetime.date(firs_edit_data.year, firs_edit_data.month, firs_edit_data.day)
+            #Удаление дат до указанной при создании таблицы.
+            clear_date_before(name_table, f_data)
+
             while True:
+                # Блок обновления дат
+                name_table = f'tradehistory_{cryptomoney}_{realdatatame()}'
+                name_table = name_table.lower()
+                logdatanametech = f'techlog{realdatatame()}.txt'
                 print('Метка 5-3')
                 time.sleep(2)
                 lastdatetimetrade = cycleupdatelogmarket_sql(lastdatetimetrade, params,logdatanametech,name_table)

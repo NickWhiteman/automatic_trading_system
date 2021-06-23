@@ -108,6 +108,8 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
             #Преобразование полной даты в формат день\месяц\год для корректного получение разницы в кол-ве дней.
             a_data = datetime.date(a_data.year, a_data.month, a_data.day)
             b_data = datetime.date(b_data.year, b_data.month, b_data.day)
+            print("B-data : ")
+            print(b_data)
             #Операция вычисления отставания.
             ttl_lastdatetimetrade = a_data - b_data
             print('Метка 0.2')
@@ -126,34 +128,11 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
                 create_table_sql(name_table)
                 firststartreturnhistoryTrade_sql(response, logdatanametech, name_table)
                 print('Метка 3')
-                # запрос к БД на удаление записей ранее нового дня до 00:00ч.
-                try:
-                    # Подключение к существующей базе данных
-                    connection = psycopg2.connect(user="postgres",
-                                                  # пароль, который указали при установке PostgreSQL
-                                                  password="111111",
-                                                  host="127.0.0.1",
-                                                  port="5432",
-                                                  database="postgres")
-                    cursor = connection.cursor()
-                    # Выполнение SQL-запроса для вставки данных в таблицу
-                    insert_query = f"""DELETE FROM {name_table} WHERE date < '{b_data}'"""
+                firs_edit_data = update_str_for_datatime(check_last_date_edit_table(name_table))
+                # Преобразование даты в сокращенный вид. Пример: 2021-06-24
+                f_data = datetime.date(firs_edit_data.year, firs_edit_data.month, firs_edit_data.day)
 
-                    # Провести удаление.
-                    cursor.execute(insert_query)
-                    connection.commit()
-                    print("Таблица подготовлена")
-                    # lastdatetimetrade = check_last_date_edit_table(name_table)
-                    print('Метка 4')
-                    # return lastdatetimetrade
-
-
-                except (Exception, Error) as error:
-                    print("Ошибка при работе с PostgreSQL", error)
-                finally:
-                    if connection:
-                        cursor.close()
-                        connection.close()
+                clear_date_before(name_table, f_data)
 
                 # Вывод последней записи в таблице на новый цикл.
                 lastdatetimetrade = check_last_date_edit_table(name_table)
@@ -308,3 +287,32 @@ def check_last_date_edit_table(name_table):
             cursor.close()
             connection.close()
 
+# очищает таблицу до даты указанной в названии при ее формировании.
+def clear_date_before(name_table,b_data):
+    try:
+        # Подключение к существующей базе данных
+        connection = psycopg2.connect(user="postgres",
+                                      # пароль, который указали при установке PostgreSQL
+                                      password="111111",
+                                      host="127.0.0.1",
+                                      port="5432",
+                                      database="postgres")
+        cursor = connection.cursor()
+        # Выполнение SQL-запроса для вставки данных в таблицу
+        insert_query = f"""DELETE FROM {name_table} WHERE date < '{b_data}'"""
+
+        # Провести удаление.
+        cursor.execute(insert_query)
+        connection.commit()
+        print("Таблица подготовлена")
+        # lastdatetimetrade = check_last_date_edit_table(name_table)
+        print('Метка 4')
+        # return lastdatetimetrade
+
+
+    except (Exception, Error) as error:
+        print("Ошибка при работе с PostgreSQL", error)
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
