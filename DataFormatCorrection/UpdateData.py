@@ -76,62 +76,48 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
         workrequest = response.json()
         workrequest.reverse()
 
-        ## удалить потом
-        print('Дата зашедная в переменную')
-        print(lastdatetimetrade)
-        ##
-
         if (updateloghourse(workrequest[-1]['date']) == lastdatetimetrade):
             # Если время совпало с последней записью 200 сделок то - возвращаем последнюю дату сделки без изменения
-            print('Время совпало')
             return lastdatetimetrade
 
             # Если проблемы нет наполняем таблицу как и ранее.
         else:
-            print('время не совпало')
-            ########## new logic
+            ########## Если время не совпало
             # Если время последней сделки НЕ совпало - заносим инфу в БД и переменную lastdatetimetrade
             # Проверяем перед обновлением, не перешли ли торги на новый день после 00:00 часов.
-            print('Метка 0.1')
+
+            ## блок сравнения
             a_data = updateloghourse(workrequest[-1]['date'])
             b_data = lastdatetimetrade
-            print(type(a_data))
-            print(type(b_data))
-            print(f'{a_data} - {b_data}')
-            print('Метка 0.1')
+            ##
+
+            #логика типов. Проскакивает бак.
             if type(b_data) == type(a_data):
-                print('Типы совпали')
+                pass
+                # print('Типы совпали')
             else:
                 b_data = update_str_for_datatime(b_data)
-                print("типы не совпали")
+                # print("типы не совпали")
 
             #Преобразование полной даты в формат день\месяц\год для корректного получение разницы в кол-ве дней.
             a_data = datetime.date(a_data.year, a_data.month, a_data.day)
             b_data = datetime.date(b_data.year, b_data.month, b_data.day)
-            print("B-data : ")
-            print(b_data)
+
             #Операция вычисления отставания.
             ttl_lastdatetimetrade = a_data - b_data
-            print('Метка 0.2')
-            print(ttl_lastdatetimetrade)
             ttl_lastdatetimetrade = str(ttl_lastdatetimetrade)
             ttl_lastdatetimetrade = ttl_lastdatetimetrade.split()[0]
-            print('+-+')
-            print(ttl_lastdatetimetrade)
-            print('Метка 1')
+
 
             if ttl_lastdatetimetrade == '1':
                 print('Начался новый торговый день!')
                 # создаем таблицу новую.
-                print('СОЗДАЛ ТАБЛИЦУ ++++')
-                print('Метка 1-1-1')
                 create_table_sql(name_table)
                 firststartreturnhistoryTrade_sql(response, logdatanametech, name_table)
-                print('Метка 3')
+
                 firs_edit_data = update_str_for_datatime(check_last_date_edit_table(name_table))
                 # Преобразование даты в сокращенный вид. Пример: 2021-06-24
                 f_data = datetime.date(firs_edit_data.year, firs_edit_data.month, firs_edit_data.day)
-
                 clear_date_before(name_table, f_data)
 
                 # Вывод последней записи в таблице на новый цикл.
@@ -156,8 +142,6 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
 
                 # обновление последней даты сделки в переменной lastdatetimetrade для следующего цикла
                 lastdatetimetrade = updateloghourse(workrequest[-1]['date'])
-                print("Запись успешно обновлена")
-                print(lastdatetimetrade)
                 return lastdatetimetrade
 
 # Запись в подготовленную таблицу sql
@@ -178,7 +162,6 @@ def sqlADDinfoTable(addinfo, name_table):
 
         cursor.execute(insert_query, addinfo)
         connection.commit()
-        print("запись успешно вставлена")
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
@@ -304,11 +287,6 @@ def clear_date_before(name_table,b_data):
         # Провести удаление.
         cursor.execute(insert_query)
         connection.commit()
-        print("Таблица подготовлена")
-        # lastdatetimetrade = check_last_date_edit_table(name_table)
-        print('Метка 4')
-        # return lastdatetimetrade
-
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
