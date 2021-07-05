@@ -1,4 +1,4 @@
-from flask import Flask, render_template,jsonify
+from flask import Flask, render_template, jsonify
 from threading import Thread
 from DataFormatCorrection.jsonrequest_test import test_sql_json
 from start import *
@@ -20,13 +20,13 @@ def get_otvet():
     return jsonify([sql_select])
 
 
-flow1 = Thread(target=app.run)
+# flow1 = Thread(target=app.run)
 flow2 = Thread(target=returnTradeHistory, daemon=True)
 
-flow1.start()
+# flow1.start()
 flow2.start()
 
 # if __name__ == '__main__':
 #     app.debug = True
-#     app.run()
+#     app.run(host="0.0.0.0", port=5000, debug=True)
 
