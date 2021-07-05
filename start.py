@@ -4,6 +4,7 @@ import os.path
 from DataFormatCorrection.UpdateData import *
 
 def returnTradeHistory():
+    print("START CIRCLE DB")
     #header
     cryptomoney = 'BTC_ETH'
     params = (

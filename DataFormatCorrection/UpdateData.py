@@ -58,7 +58,7 @@ def firststartreturnhistoryTrade_sql(response, logdatanametech, name_table):
             lastdatetimetrade = updateloghourse(workrequest[i]['date'])
         else:
             pass
-
+    print('Превичное наполнение закончено')
     return lastdatetimetrade
 
 # Динамическое наполнение таблицы.
@@ -139,7 +139,7 @@ def cycleupdatelogmarket_sql(lastdatetimetrade, params, logdatanametech, name_ta
 
                 sqlADDinfoTable(sql_json, name_table)
                 sql_json.clear()
-
+                print('Запись успешна обновлена')
                 # обновление последней даты сделки в переменной lastdatetimetrade для следующего цикла
                 lastdatetimetrade = updateloghourse(workrequest[-1]['date'])
                 return lastdatetimetrade
@@ -151,7 +151,7 @@ def sqlADDinfoTable(addinfo, name_table):
         connection = psycopg2.connect(user="postgres",
                                       # пароль, который указали при установке PostgreSQL
                                       password="111111",
-                                      host="127.0.0.1",
+                                      host="db",
                                       port="5432",
                                       database="postgres")
 
@@ -174,12 +174,13 @@ def sqlADDinfoTable(addinfo, name_table):
 
 # Функция выплевывает список таблиц в базе данных.
 def chectablefromDB(name_table):
+    connection = None
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user="postgres",
                                       # пароль, который указали при установке PostgreSQL
                                       password="111111",
-                                      host="127.0.0.1",
+                                      host="db",
                                       port="5432",
                                       database="postgres")
         cursor = connection.cursor()
@@ -213,7 +214,7 @@ def create_table_sql(name_table):
         connection = psycopg2.connect(user="postgres",
                                       # пароль, который указали при установке PostgreSQL
                                       password="111111",
-                                      host="127.0.0.1",
+                                      host="db",
                                       port="5432",
                                       database="postgres")
 
@@ -250,7 +251,7 @@ def check_last_date_edit_table(name_table):
         connection = psycopg2.connect(user="postgres",
                                       # пароль, который указали при установке PostgreSQL
                                       password="111111",
-                                      host="127.0.0.1",
+                                      host="db",
                                       port="5432",
                                       database="postgres")
 
@@ -277,7 +278,7 @@ def clear_date_before(name_table,b_data):
         connection = psycopg2.connect(user="postgres",
                                       # пароль, который указали при установке PostgreSQL
                                       password="111111",
-                                      host="127.0.0.1",
+                                      host="db",
                                       port="5432",
                                       database="postgres")
         cursor = connection.cursor()

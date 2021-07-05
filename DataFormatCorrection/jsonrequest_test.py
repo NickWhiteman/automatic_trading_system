@@ -5,12 +5,13 @@ from psycopg2 import Error
 
 
 def test_sql_json(name_table):
+    connection = None
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user="postgres",
                                       # пароль, который указали при установке PostgreSQL
                                       password="111111",
-                                      host="127.0.0.1",
+                                      host="db",
                                       port="5432",
                                       database="postgres")
 
